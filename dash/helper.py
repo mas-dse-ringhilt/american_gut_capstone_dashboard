@@ -3,42 +3,26 @@ import pandas as pd
 import numpy as np
 
 
-def get_bar_plot(height=600):
+pca_explain_var_dic = {
+    'hyperbolic': [40.2, 22.67, 10.1],
+    'word2vec': [ 37.4, 16.3, 9.1]
+}
+
+
+def get_plot_3d(pca_df, embedding):
+    pca_explain_vars = pca_explain_var_dic[embedding]
+
     data = []
 
-    trace = go.Bar(
-        name='test',
-        x=[1, 2, 3],
-        y=[4, 5, 6],
-    )
-    data.append(trace)
-
-    layout = go.Layout(
-        showlegend=True,
-        #paper_bgcolor='rgb(243, 243, 243)',
-        #plot_bgcolor='rgb(243, 243, 243)',
-        height=height,
-        margin=go.layout.Margin(l=50, r=10, t=10, b=30)
-    )
-
-    fig = go.Figure(data=data, layout=layout)
-    return fig
-
-
-def get_hyper_plot_3d():
-    data= []
-    
-    hyper_df = pd.read_csv('../data/hyperbolic_bodysite_pca.csv')
-
-    hyper_df['sample_id_display'] = hyper_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
+    pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
     
     for label in ['feces', 'saliva', 'sebum']:
-        adf = hyper_df[hyper_df.label == label]
+        adf = pca_df[pca_df.label == label]
         sample_ids = adf['sample_id']
-        x=adf['PCA1']
-        y=adf['PCA2']
-        z=adf['PCA3']
-        env_material = hyper_df['label']
+        x = adf['PCA1']
+        y = adf['PCA2']
+        z = adf['PCA3']
+        env_material = pca_df['label']
         
         trace = go.Scatter3d(
             x=x,
@@ -74,13 +58,13 @@ def get_hyper_plot_3d():
         scene = dict(
             aspectmode='cube',
             xaxis=dict(
-                title= 'PCA1 (40.2 %)'
+                title= 'PCA1 ({0} %)'.format(pca_explain_vars[0])
             ),
             yaxis=dict(
-                title='PCA2 (22.67 %)'
+                title='PCA2 ({0} %)'.format(pca_explain_vars[1])
             ),
             zaxis=dict(
-                title='PCA3 (? %)'
+                title='PCA3 ({0} %)'.format(pca_explain_vars[2])
             )
         )
     )
@@ -89,19 +73,19 @@ def get_hyper_plot_3d():
     return fig
 
 
-def get_hyper_plot_2d():
-    data= []
+def get_plot_2d(pca_df, embedding):
+    pca_explain_vars = pca_explain_var_dic[embedding]
+
+    data = []
     
-    hyper_df = pd.read_csv('../data/hyperbolic_bodysite_pca.csv')
-    
-    hyper_df['sample_id_display'] = hyper_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
+    pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
 
     for label in ['feces', 'saliva', 'sebum']:
-        adf = hyper_df[hyper_df.label == label]
+        adf = pca_df[pca_df.label == label]
         sample_ids = adf['sample_id']
-        x=adf['PCA1']
-        y=adf['PCA2']
-        env_material = hyper_df['label']
+        x = adf['PCA1']
+        y = adf['PCA2']
+        env_material = pca_df['label']
         
         trace = go.Scattergl(
             x=x,
@@ -122,10 +106,10 @@ def get_hyper_plot_2d():
         clickmode='event+select',
         hovermode='closest',
         xaxis=dict(
-            title= 'PCA1 (40.2 %)'
+            title= 'PCA1 ({0} %)'.format(pca_explain_vars[0])
         ),
         yaxis=dict(
-            title='PCA2 (22.67 %)'
+            title='PCA2 ({0} %)'.format(pca_explain_vars[1])
         )
     )
     fig = go.Figure(data=data, layout=layout)
