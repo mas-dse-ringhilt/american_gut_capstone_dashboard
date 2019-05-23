@@ -8,6 +8,8 @@ import pickle
 import json
 import helper as h
 
+from dash_sunburst import Sunburst
+
 
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': 'https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css'})  # noqa: E501
@@ -21,6 +23,17 @@ alpha_df = pd.read_csv('../data/alpha_div_all_body_sites_clean.csv')
 
 w2v_df = pd.read_csv('../data/w2vec_pca.csv')
 hyper_df = pd.read_csv('../data/hyperbolic_bodysite_pca.csv')
+
+
+tax_df = pd.read_csv('../data/sampleid_to_tax.csv')
+tax_df = tax_df.dropna(how='any', axis=0)
+# cast sample id as int
+tax_df['sample_id'] = tax_df['sample_id'].apply(lambda x: int(x))
+
+
+sample_id_options = [{'label': sample_id,
+                        'value': sample_id}
+                       for sample_id in sorted(tax_df.sample_id.unique())]
 
 
 tabs_styles = {
@@ -77,6 +90,17 @@ def get_tab_one_div1():
                     )
                 ],
                 className='three columns'
+            ),
+            html.Div(
+                [
+                    html.P('Select Sample ID:', style={'margin-bottom': '1px'}),
+                    dcc.Dropdown(
+                        id='sample-dropdown',
+                        options=sample_id_options,
+                        #value=''
+                    ),
+                ],
+                className='two columns'
             )
         ],
         className='row', style={'margin-top': '15px'}
@@ -91,15 +115,21 @@ def get_tab_one_div2():
                 [
                     dcc.Graph(id='scatter3d-plot')
                 ],
-                className='eight columns',
-                style={'margin-top': '5'}
+                className='six columns',
+                style={'margin-top': '5px'}
             ),
-
+            html.Div(
+                [
+                    Sunburst(id='sunburst', data=h.get_blah_data())
+                ],
+                className='six columns',
+                style={'margin-top': '0px'}
+            ),
             html.Div([
                     outer_profile_div
                 ],
-                className='three columns',
-                style={'margin-top': '20', 'margin-left': '60', 'backgroundColor': 'rgb(240, 240, 240)', 'border': 'solid grey 1px'}
+                className='five columns',
+                style={'margin-top': '20px', 'margin-left': '50px', 'margin-bottom': '20px', 'backgroundColor': 'rgb(240, 240, 240)', 'border': 'solid grey 1px'}
             ),
         ]
     )
@@ -110,6 +140,7 @@ def get_profile_div(sample_id=None):
     if sample_id:
         adf = df[df.sample_id == sample_id]
         #print(adf.shape)
+        body_site = adf.env_material.iloc[0]
         bmi = adf.bmi_corrected.iloc[0]
         age = adf.age_corrected.iloc[0]
         country = adf.country.iloc[0]
@@ -139,29 +170,29 @@ def get_profile_div(sample_id=None):
 
         return html.Div([
             html.P('Sample ID: {0}'.format(sample_id)),
+            html.P('Body Site: {0}'.format(body_site)),
             html.P('Faith PD Alpha Diversity: {:.2f}'.format(faith_pd)),
             html.P('BMI: {0}'.format(bmi)),
             html.P('Age: {0}'.format(age)),
             html.P('Country: {0}'.format(country)),
-            html.P('Latitude: {0}'.format(lat)),
-            html.P('Longitude: {0}'.format(lon)),
+            html.P('Lat, Lon: {0}, {1}'.format(lat, lon)),
             html.P('Antibiotics: {0}'.format(anti)),
             html.P('Supplements: {0}'.format(supp)),
             html.P('Medications: {0}'.format(med)),
-        ], id='profile-div', style={'margin-left': '5', 'height': '392px'})
+        ], id='profile-div', style={'margin-left': '5px', 'height': '392px'})
     else:
         return html.Div([
             html.P('Sample ID:'),
+            html.P('Body Site:'),
             html.P('Faith PD Alpha Diversity: '),
             html.P('BMI: '),
             html.P('Age: '),
             html.P('Country: '),
-            html.P('Latitude: '),
-            html.P('Longitude: '),
+            html.P('Lat, Lon: '),
             html.P('Antibiotics: '),
             html.P('Supplements: '),
             html.P('Medications: '),
-        ], id='profile-div', style={'margin-left': '5', 'height': '392px'})
+        ], id='profile-div', style={'margin-left': '5px', 'height': '392px'})
 
 
 def get_help_tab():
@@ -172,7 +203,7 @@ def get_help_tab():
                     html.P('Help')
                 ],
                 className='six columns',
-                style={'margin-top': '20'}
+                style={'margin-top': '20px'}
             ),
         ],
         className='row'
@@ -218,15 +249,10 @@ app.layout = html.Div(
 
 
 @app.callback(Output('outer-profile-div1', 'children'),
-              [Input('metric-dropdown-1', 'value'),
-               Input('scatter3d-plot', 'hoverData')])
-def update_profile_div(metric, hoverData):
-    #print('inside update profile div')
-    #print(json.dumps(hoverData, indent=2))
-    if hoverData:
-        sample_id = json.dumps(hoverData['points'][0]['text'].split()[1])
-        sample_id = int(sample_id.strip('"'))
-        #print(sample_id)
+              [Input('sample-dropdown', 'value')])
+def update_profile_div(sample_id):
+    if sample_id:
+        print('sample_id')
         profile_div = get_profile_div(sample_id)
     else:
         profile_div = get_profile_div()
@@ -236,24 +262,30 @@ def update_profile_div(metric, hoverData):
 @app.callback(
     dash.dependencies.Output('scatter3d-plot', 'figure'),
     [dash.dependencies.Input('metric-dropdown-1', 'value'),
+     dash.dependencies.Input('sample-dropdown', 'value'),
      dash.dependencies.Input('scatter-radio', 'value')])
-def update_scatter3d_plot(metric, scatter_type):
+def update_scatter3d_plot(metric, sample_id, scatter_type):
     print(scatter_type)
     print(metric)
     if scatter_type == '3D':
         print('scatter type is 3D')
         if metric == 'hyperbolic':
-            fig = h.get_plot_3d(hyper_df, 'hyperbolic')
+            fig = h.get_plot_3d(hyper_df, 'hyperbolic', sample_id)
         else:
-            fig = h.get_plot_3d(w2v_df, 'word2vec')
+            fig = h.get_plot_3d(w2v_df, 'word2vec', sample_id)
     else:
         if metric == 'hyperbolic':
-            fig = h.get_plot_2d(hyper_df, 'hyperbolic')
+            fig = h.get_plot_2d(hyper_df, 'hyperbolic', sample_id)
         else:
-            fig = h.get_plot_2d(w2v_df, 'word2vec')
+            fig = h.get_plot_2d(w2v_df, 'word2vec', sample_id)
     return fig
 
 
+@app.callback(
+    dash.dependencies.Output('sunburst', 'data'),
+    [dash.dependencies.Input('sample-dropdown', 'value')])
+def update_sunburst_plot(sample_id):
+    return h.get_blah_data()
 
 if __name__ == '__main__':
     app.run_server(debug=True)
