@@ -21,8 +21,18 @@ df = pd.read_csv('../data/all_body_4.16.agp_only_meta.csv', low_memory=False)
 drug_df = pd.read_csv('../data/2.21.drug_data_dense.csv')
 alpha_df = pd.read_csv('../data/alpha_div_all_body_sites_clean.csv')
 
-w2v_df = pd.read_csv('../data/w2vec_pca.csv')
-hyper_df = pd.read_csv('../data/hyperbolic_bodysite_pca.csv')
+basic_df = pd.read_csv('../data/5.30.pca.data/5_30_basic_pca.csv')
+w2v_df = pd.read_csv('../data/5.30.pca.data/5_30_w2vec_pca.csv')
+hyper_df = pd.read_csv('../data/5.30.pca.data/5_30_hyper_pca.csv')
+pcoa_df = pd.read_csv('../data/5.30.pca.data/5_30_beta_pcoa_3000sample.csv')
+
+
+embed_dic = {
+    'no_embedding': basic_df, 
+    'pcoa': pcoa_df,
+    'hyperbolic': hyper_df, 
+    'word2vec': w2v_df
+}
 
 
 tax_df = pd.read_csv('../data/sampleid_to_tax.csv')
@@ -54,7 +64,7 @@ tab_selected_style = {
 }
 
 
-EMBEDDDING_TYPES = sorted(['hyperbolic', 'word2vec'])
+EMBEDDDING_TYPES = ['no_embedding', 'pcoa', 'hyperbolic', 'word2vec']
 
 embedding_options = [{'label': metric,
                         'value': metric}
@@ -267,17 +277,11 @@ def update_profile_div(sample_id):
 def update_scatter3d_plot(metric, sample_id, scatter_type):
     print(scatter_type)
     print(metric)
+    embed_df = embed_dic[metric]
     if scatter_type == '3D':
-        print('scatter type is 3D')
-        if metric == 'hyperbolic':
-            fig = h.get_plot_3d(hyper_df, 'hyperbolic', sample_id)
-        else:
-            fig = h.get_plot_3d(w2v_df, 'word2vec', sample_id)
+        fig = h.get_plot_3d(embed_df, metric, sample_id)
     else:
-        if metric == 'hyperbolic':
-            fig = h.get_plot_2d(hyper_df, 'hyperbolic', sample_id)
-        else:
-            fig = h.get_plot_2d(w2v_df, 'word2vec', sample_id)
+        fig = h.get_plot_2d(embed_df, metric, sample_id)
     return fig
 
 

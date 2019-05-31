@@ -4,8 +4,10 @@ import numpy as np
 
 
 pca_explain_var_dic = {
-    'hyperbolic': [40.2, 22.67, 10.1],
-    'word2vec': [37.4, 16.3, 9.1]
+    'no_embedding': [40.2, 5.1, 4.4],
+    'pcoa': [18.4, 9.4, 4.4],
+    'hyperbolic':  [40.1, 22.8, 9.4],
+    'word2vec': [65.9, 12.8, 4.2]
 }
 
 
