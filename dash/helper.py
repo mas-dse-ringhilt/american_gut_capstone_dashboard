@@ -16,6 +16,11 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
     data = []
 
     pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
+
+    if sample_id:
+        opacity = 0.1
+    else:
+        opacity = 0.7
     
     for label in ['feces', 'saliva', 'sebum']:
         adf = pca_df[pca_df.label == label]
@@ -33,7 +38,7 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
             name=adf['label'].iloc[0],
             mode='markers',
             marker=dict(
-                opacity=0.7
+                opacity=opacity
             )
         )
 
@@ -46,12 +51,12 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
         sample_ids = sdf['sample_id']
         x = sdf['PC1']
         y = sdf['PC2']       
-        z = adf['PC3']  
+        z = sdf['PC3']  
         sample_trace = go.Scatter3d(
             x=x,
             y=y,
             z=z,
-            text=adf['sample_id_display'],
+            text=sdf['sample_id_display'],
             name='sample_id: {0}'.format(sample_id),
             mode='markers',
             marker=dict(
@@ -112,6 +117,11 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
     
     pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
 
+    if sample_id:
+        opacity = 0.1
+    else:
+        opacity = 0.7
+
     for label in ['feces', 'saliva', 'sebum']:
         adf = pca_df[pca_df.label == label]
         sample_ids = adf['sample_id']
@@ -126,7 +136,7 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
             name=adf['label'].iloc[0],
             mode='markers',
             marker=dict(
-                opacity=0.8
+                opacity=opacity
             )
         )
 
@@ -143,7 +153,7 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
         sample_trace = go.Scattergl(
             x=x,
             y=y,
-            text=adf['sample_id_display'],
+            text=sdf['sample_id_display'],
             name='sample_id: {0}'.format(sample_id),
             mode='markers',
             marker=dict(
