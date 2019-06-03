@@ -48,23 +48,6 @@ sample_id_options = [{'label': sample_id,
                        for sample_id in sorted(tax_df.sample_id.unique())]
 
 
-tabs_styles = {
-    'height': '44px'
-}
-tab_style = {
-    'borderBottom': '1px solid #d6d6d6',
-    'padding': '6px',
-    'fontWeight': 'bold'
-}
-
-tab_selected_style = {
-    'borderTop': '1px solid #d6d6d6',
-    'borderBottom': '1px solid #d6d6d6',
-    'backgroundColor': '#119DFF',
-    'color': 'white',
-    'padding': '6px'
-}
-
 
 EMBEDDDING_TYPES = ['no_embedding', 'pcoa', 'hyperbolic', 'word2vec']
 
@@ -207,20 +190,6 @@ def get_profile_div(sample_id=None):
         ], id='profile-div', style={'margin-left': '5px', 'height': '392px'})
 
 
-def get_help_tab():
-    return html.Div(
-        [
-            html.Div(
-                [
-                    html.P('Help')
-                ],
-                className='six columns',
-                style={'margin-top': '20px'}
-            ),
-        ],
-        className='row'
-    )
-
 app.layout = html.Div(
     [
         html.Div(
@@ -244,17 +213,13 @@ app.layout = html.Div(
             style={'margin-bottom': '5px', 'borderBottom': 'thin lightgrey solid'}
         ),
 
-
-        dcc.Tabs(id="tabs", children=[
-            dcc.Tab(label='Body Site Classification', children=[
+        html.Div(
+            [
                 get_tab_one_div1(),
                 get_tab_one_div2(),
-            ], style=tab_style, selected_style=tab_selected_style),
-            dcc.Tab(label='Help', children=[
-                get_help_tab()
-            ], style=tab_style, selected_style=tab_selected_style),
+            ]
+        )
 
-        ], style=tabs_styles),
     ],
     className='ten columns offset-by-one'
 )
