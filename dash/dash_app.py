@@ -16,15 +16,17 @@ app.css.append_css({'external_url': 'https://cdn.rawgit.com/plotly/dash-app-styl
 app.config['suppress_callback_exceptions']=True
 
 
+PCA_DATA_DIR = '../data/6.2.19.pca.data/output_data/'
+
 #df = pd.read_csv('../data/clean_viz_project_data.csv')
 df = pd.read_csv('../data/all_body_4.16.agp_only_meta.csv', low_memory=False)
 drug_df = pd.read_csv('../data/2.21.drug_data_dense.csv')
 alpha_df = pd.read_csv('../data/alpha_div_all_body_sites_clean.csv')
 
-basic_df = pd.read_csv('../data/5.30.pca.data/5_30_basic_pca.csv')
-w2v_df = pd.read_csv('../data/5.30.pca.data/5_30_w2vec_pca.csv')
-hyper_df = pd.read_csv('../data/5.30.pca.data/5_30_hyper_pca.csv')
-pcoa_df = pd.read_csv('../data/5.30.pca.data/5_30_beta_pcoa_3000sample.csv')
+basic_df = pd.read_csv(PCA_DATA_DIR + 'simple_pca.csv')
+w2v_df = pd.read_csv(PCA_DATA_DIR + 'w2vec_pca.csv')
+hyper_df = pd.read_csv(PCA_DATA_DIR + 'hyper_pca.csv')
+pcoa_df = pd.read_csv(PCA_DATA_DIR + 'beta_pcoa_3000sample.csv')
 
 
 embed_dic = {

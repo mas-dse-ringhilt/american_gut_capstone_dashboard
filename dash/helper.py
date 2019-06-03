@@ -3,16 +3,15 @@ import pandas as pd
 import numpy as np
 
 
-pca_explain_var_dic = {
-    'no_embedding': [40.2, 5.1, 4.4],
-    'pcoa': [18.4, 9.4, 4.4],
-    'hyperbolic':  [40.1, 22.8, 9.4],
-    'word2vec': [65.9, 12.8, 4.2]
-}
+PCA_DATA_DIR = '../data/6.2.19.pca.data/'
+pca_explain_df = pd.read_csv(PCA_DATA_DIR + 'pca_explained_var.csv')
 
 
 def get_plot_3d(pca_df, embedding, sample_id=None):
-    pca_explain_vars = pca_explain_var_dic[embedding]
+    pc_df = pca_explain_df[pca_explain_df['embedding'] == embedding]
+    PC1 = np.round(pc_df['PC1'].iloc[0]*100, 2)
+    PC2 = np.round(pc_df['PC2'].iloc[0]*100, 2)
+    PC3 = np.round(pc_df['PC3'].iloc[0]*100, 2)
 
     data = []
 
@@ -21,9 +20,9 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
     for label in ['feces', 'saliva', 'sebum']:
         adf = pca_df[pca_df.label == label]
         sample_ids = adf['sample_id']
-        x = adf['PCA1']
-        y = adf['PCA2']
-        z = adf['PCA3']
+        x = adf['PC1']
+        y = adf['PC2']
+        z = adf['PC3']
         env_material = pca_df['label']
         
         trace = go.Scatter3d(
@@ -45,9 +44,9 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
         sdf = pca_df[pca_df.sample_id == sample_id]
         print(sdf.shape)
         sample_ids = sdf['sample_id']
-        x = sdf['PCA1']
-        y = sdf['PCA2']       
-        z = adf['PCA3']  
+        x = sdf['PC1']
+        y = sdf['PC2']       
+        z = adf['PC3']  
         sample_trace = go.Scatter3d(
             x=x,
             y=y,
@@ -84,13 +83,13 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
         scene = dict(
             aspectmode='cube',
             xaxis=dict(
-                title= 'PCA1 ({0} %)'.format(pca_explain_vars[0])
+                title= 'PC1 ({0} %)'.format(PC1)
             ),
             yaxis=dict(
-                title='PCA2 ({0} %)'.format(pca_explain_vars[1])
+                title='PC2 ({0} %)'.format(PC2)
             ),
             zaxis=dict(
-                title='PCA3 ({0} %)'.format(pca_explain_vars[2])
+                title='PC3 ({0} %)'.format(PC3)
             ),
             camera = dict(
                 #up=dict(x=0, y=0, z=1),
@@ -105,7 +104,9 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
 
 
 def get_plot_2d(pca_df, embedding, sample_id=None):
-    pca_explain_vars = pca_explain_var_dic[embedding]
+    pc_df = pca_explain_df[pca_explain_df['embedding'] == embedding]
+    PC1 = np.round(pc_df['PC1'].iloc[0]*100, 2)
+    PC2 = np.round(pc_df['PC2'].iloc[0]*100, 2)
 
     data = []
     
@@ -114,8 +115,8 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
     for label in ['feces', 'saliva', 'sebum']:
         adf = pca_df[pca_df.label == label]
         sample_ids = adf['sample_id']
-        x = adf['PCA1']
-        y = adf['PCA2']
+        x = adf['PC1']
+        y = adf['PC2']
         env_material = pca_df['label']
         
         trace = go.Scattergl(
@@ -136,8 +137,8 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
         sdf = pca_df[pca_df.sample_id == sample_id]
         print(sdf.shape)
         sample_ids = sdf['sample_id']
-        x = sdf['PCA1']
-        y = sdf['PCA2']       
+        x = sdf['PC1']
+        y = sdf['PC2']       
         
         sample_trace = go.Scattergl(
             x=x,
@@ -160,10 +161,10 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
         clickmode='event+select',
         hovermode='closest',
         xaxis=dict(
-            title= 'PCA1 ({0} %)'.format(pca_explain_vars[0])
+            title= 'PC1 ({0} %)'.format(PC1)
         ),
         yaxis=dict(
-            title='PCA2 ({0} %)'.format(pca_explain_vars[1])
+            title='PC2 ({0} %)'.format(PC2)
         )
     )
     fig = go.Figure(data=data, layout=layout)
