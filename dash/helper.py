@@ -5,6 +5,8 @@ import numpy as np
 
 PCA_DATA_DIR = '../data/6.2.19.pca.data/'
 pca_explain_df = pd.read_csv(PCA_DATA_DIR + 'pca_explained_var.csv')
+tax_df = pd.read_csv('../data/sampleid_to_tax.csv')
+tax_df = tax_df.dropna(how='any', axis=0)
 
 
 def get_plot_3d(pca_df, embedding, sample_id=None):
@@ -18,7 +20,7 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
     pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
 
     if sample_id:
-        opacity = 0.1
+        opacity = 0.3
     else:
         opacity = 0.7
     
@@ -118,7 +120,7 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
     pca_df['sample_id_display'] = pca_df['sample_id'].apply(lambda x: 'sample_id: {0}'.format(x))
 
     if sample_id:
-        opacity = 0.1
+        opacity = 0.3
     else:
         opacity = 0.7
 
@@ -220,26 +222,31 @@ def get_sunburst_plot(df, sample_id):
     return fig
 
 
-def get_blah_data():
-    return {
-        'name': 'Bacteria',
-        'children': [
-            {
-                'name': 'Proteobacteria',
-                'children': [
-                    {'name': 'Alphaproteobacteria', 'size': 2.48},
-                    {'name': 'Betaproteobacteria', 'size': 4.16},
-                    {'name': 'Deltaproteobacteria', 'size': 0.69},
-                    {'name': 'Gammaproteobacteria', 'size': 28.47},
-                ]
-            },
-            {
-                'name': 'Firmicutes',
-                'children': [
-                    {'name': 'Bacilli', 'size': 1.38},
-                    {'name': 'Clostridia', 'size': 14.58},
-                    {'name': 'Erysipelotrichi', 'size': 1.79},
-                ]
-            }
-        ]
-    }
+def get_sunburst_data(sample_id):
+    #tax_df = tax_df.dropna(how='any', axis=0)
+    # cast sample id as int
+    tax_df['sample_id'] = tax_df['sample_id'].apply(lambda x: int(x))
+
+    df_sample = tax_df[['phylum', 'class', 'weight']][tax_df['sample_id'] == int(sample_id)]
+    df_sample = df_sample.groupby(['phylum', 'class']).sum()
+    df_sample.reset_index(inplace=True)
+
+    final_dic = {}
+    final_dic['name'] = 'Bacteria'
+
+    out_child_list = []
+    for phylum in sorted(df_sample.phylum.unique()):
+        outer_dic = {}
+        outer_dic['name'] = phylum
+        adf = df_sample[df_sample.phylum == phylum]
+        child_dic_list = []
+        for i in range(len(adf)):
+            child = adf['class'].iloc[i]
+            weight = np.round(adf.weight.iloc[i], 2)
+            child_dic = {'name': child, 'size': weight}
+            child_dic_list.append(child_dic)
+        outer_dic['children'] = child_dic_list
+        out_child_list.append(outer_dic)
+    final_dic['children'] = out_child_list
+    
+    return final_dic

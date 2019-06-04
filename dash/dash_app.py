@@ -48,7 +48,6 @@ sample_id_options = [{'label': sample_id,
                        for sample_id in sorted(tax_df.sample_id.unique())]
 
 
-
 EMBEDDDING_TYPES = ['no_embedding', 'pcoa', 'hyperbolic', 'word2vec']
 
 embedding_options = [{'label': metric,
@@ -115,7 +114,7 @@ def get_tab_one_div2():
             ),
             html.Div(
                 [
-                    Sunburst(id='sunburst', data=h.get_blah_data())
+                    Sunburst(id='sunburst', data=h.get_sunburst_data(6702))
                 ],
                 className='six columns',
                 style={'margin-top': '0px'}
@@ -256,7 +255,11 @@ def update_scatter3d_plot(metric, sample_id, scatter_type):
     dash.dependencies.Output('sunburst', 'data'),
     [dash.dependencies.Input('sample-dropdown', 'value')])
 def update_sunburst_plot(sample_id):
-    return h.get_blah_data()
+    # default to sample_id if one doesnt exist
+    if not sample_id:
+        sample_id = 6702
+        
+    return h.get_sunburst_data(sample_id)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
