@@ -8,6 +8,8 @@ pca_explain_df = pd.read_csv(PCA_DATA_DIR + 'pca_explained_var.csv')
 tax_df = pd.read_csv('../data/sampleid_to_tax.csv')
 tax_df = tax_df.dropna(how='any', axis=0)
 
+color_dic = {'feces': '#00C6D7', 'sebum': '#6E963B', 'saliva': '#FC8900'}
+
 
 def get_plot_3d(pca_df, embedding, sample_id=None):
     pc_df = pca_explain_df[pca_explain_df['embedding'] == embedding]
@@ -40,7 +42,8 @@ def get_plot_3d(pca_df, embedding, sample_id=None):
             name=adf['label'].iloc[0],
             mode='markers',
             marker=dict(
-                opacity=opacity
+                opacity=opacity,
+                color=color_dic[label]
             )
         )
 
@@ -138,7 +141,8 @@ def get_plot_2d(pca_df, embedding, sample_id=None):
             name=adf['label'].iloc[0],
             mode='markers',
             marker=dict(
-                opacity=opacity
+                opacity=opacity,
+                color=color_dic[label]
             )
         )
 
