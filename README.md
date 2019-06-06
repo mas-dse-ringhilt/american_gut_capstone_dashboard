@@ -1,5 +1,5 @@
-### Capstone Dashboard
-Interactively explore American Gut Project Samples and Embedding Results for Body Site Classifcation
+### American Gut Capstone Dashboard
+Interactively explore American Gut Project Samples and visualize word2vec, pcOa, and hyperbolic embedding results
 
 Create a virtualenv:  
 `python3 -m venv virtualenv`
@@ -24,4 +24,8 @@ Go to 'dash' directory:
 To launch the web app UI run the following:   
 `python dash_app.py`
 
-Then open up your web browser and go to 'http://localhost:8050/'
+Then open up your web browser and go to http://localhost:8050/
+
+
+### Links
+full repository of related prequisite work: https://github.com/mas-dse-ringhilt/DSE-American-Gut-Project
